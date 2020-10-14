@@ -15,6 +15,8 @@ const AddFriend = (props) => {
     // states
     const [formValues, handleChanges, resetForm, setValues] = useForm(initialValues);
     
+    const { setFriends } = props
+
     //console.log("Props: ", props)
 
     //Helpers
@@ -26,9 +28,7 @@ const AddFriend = (props) => {
             .post('/friends', newFriend)
             .then((res) => {
                 console.log('add friends: ', res)
-                props.setFriends({
-                    friends: res.data
-                })
+                setFriends(res.data)
             })
             .catch((err) => {
                 console.log('Error: ', err)

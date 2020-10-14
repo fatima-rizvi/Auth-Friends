@@ -1,56 +1,54 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import AddFriend from './AddFriend';
-//import moment from "moment";
-//import Loader from "react-loader-spinner";
 
 import { axiosWithAuth } from "../utils/axiosWithAuth.js";
 
-class FriendsList extends React.Component {
-  state = {
-    friends: []
-  };
+const FriendsList = () => {
+  const [friends, setFriends] = useState([])
 
-  componentDidMount() {
-    this.getData();
-  }
-
-  // componentDidUpdate(prevProps, prevState) {
-  //   if (prevState.friends !== this.state.friends){
-  //     this.getData();
-  //   }
-  // }
-
-  getData = () => {
+  const getData = () => {
     axiosWithAuth()
       .get("/friends")
       .then((res) => {
         console.log('friends list: ', res.data);
-        this.setState({
-          friends: res.data
-        });
+        setFriends(res.data);
       })
       .catch((err) => {
         console.log('Friends error: ', err);
       });
   };
 
-  render() {
-    const friendsArr = this.state.friends;
-    console.log("Friends array: ", friendsArr);
-    return (
-      <div>
-        <AddFriend setFriends = {this.setState}/>
+  useEffect(() => {
+    getData()
+  }, [])
+
+  const deleteFriend = (friendId) => {
+    console.log('target ID: ', friendId);
+    axiosWithAuth()
+            .delete(`/friends/${friendId}`)
+            .then((res) => {
+                console.log('delete friend: ', res)
+                setFriends(res.data)
+            })
+            .catch((err) => {
+                console.log('delete Error: ', err)
+            })
+  }
+
+  return (
+    <div>
+        <AddFriend setFriends = {setFriends}/>
+        <h4>Click on a friend to delete them</h4>
         <div className="all-friends">
-          {
-            friendsArr.map((friend) => (
-              <p>{friend.name}</p>
-            )
-            )
+          {friends &&
+            friends.map((friend) => (
+                <p onClick = {() => deleteFriend(friend.id)} >{friend.name}</p>
+              ))
           }
         </div>
       </div>
-    );
-  }
+  )
+
 }
 
 export default FriendsList;
